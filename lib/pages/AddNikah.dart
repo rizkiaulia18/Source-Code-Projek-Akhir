@@ -1,116 +1,167 @@
 import 'package:flutter/material.dart';
-import 'package:simasjid/pages/v_nikah.dart';
+import 'package:simasjid/model/nikah.dart';
 
-import '../model/nikah.dart';
-import '../service/nikahService.dart';
+import '../service/NikahService.dart';
 
 class AddNikah extends StatefulWidget {
-  const AddNikah({Key? key}) : super(key: key);
-
   @override
-  State<AddNikah> createState() => _AddNikahState();
+  _AddNikahState createState() => _AddNikahState();
 }
 
 class _AddNikahState extends State<AddNikah> {
-  NikahService nikahService = NikahService();
-  final _nama_pengantin_pController = TextEditingController();
-  final _nama_pengantin_wController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nikahService = NikahService();
+
+  String _namaPengantinP = '';
+  String _namaPengantinW = '';
+  String _namaPenghulu = '';
+  String _namaWali = '';
+  String _namaQori = '';
+  DateTime _tglNikah = DateTime.now();
+  TimeOfDay _jamNikah = TimeOfDay.now();
+
+  String _formatTimeOfDay(TimeOfDay timeOfDay) {
+    final now = DateTime.now();
+    final dateTime = DateTime(
+        now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
+    final formattedTime =
+        "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+    return formattedTime;
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      // Buat objek Nikah berdasarkan data yang diisi oleh pengguna
+      Nikah newNikah = Nikah(
+        id_nikah: '', // Jika Anda menggunakan auto-increment id, biarkan kosong
+        nama_pengantin_p: _namaPengantinP,
+        nama_pengantin_w: _namaPengantinW,
+        nama_penghulu: _namaPenghulu,
+        nama_wali: _namaWali,
+        nama_qori: _namaQori,
+        tgl_nikah: _tglNikah.toString(),
+        jam_nikah: _formatTimeOfDay(
+            _jamNikah), // Menggunakan metode _formatTimeOfDay dari kelas ini
+      );
+
+      // Kirim data nikah baru ke API
+      await _nikahService.postData(newNikah);
+
+      // Tampilkan snackbar sebagai notifikasi bahwa data berhasil ditambahkan
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Data nikah berhasil ditambahkan!'),
+        ),
+      );
+
+      // Kembali ke halaman sebelumnya
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Add Nikah',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
-          ),
-        ),
-        backgroundColor: Color.fromARGB(255, 238, 227, 203),
+        title: Text('Tambah Data Nikah'),
       ),
-      body: Container(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nama_pengantin_pController,
-              decoration: InputDecoration(
-                hintText: 'Nama Pengantin Pria',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            children: [
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Nama Pengantin Pria'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Nama Pengantin Pria tidak boleh kosong';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _namaPengantinP = value!;
+                },
               ),
-            ),
-            SizedBox(height: 16),
-            TextField(
-              controller: _nama_pengantin_wController,
-              decoration: InputDecoration(
-                hintText: 'Nama Pengantin Wanita',
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Nama Pengantin Wanita'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Nama Pengantin Wanita tidak boleh kosong';
+                  }
+                  return null;
+                },
+                onSaved: (value) {
+                  _namaPengantinW = value!;
+                },
               ),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () async {
-                if (_nama_pengantin_pController.text.isEmpty ||
-                    _nama_pengantin_wController.text.isEmpty) {
-                  showDialog(
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Nama Penghulu'),
+                onSaved: (value) {
+                  _namaPenghulu = value!;
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Nama Wali'),
+                onSaved: (value) {
+                  _namaWali = value!;
+                },
+              ),
+              TextFormField(
+                decoration: InputDecoration(labelText: 'Nama Qori'),
+                onSaved: (value) {
+                  _namaQori = value!;
+                },
+              ),
+              SizedBox(height: 16),
+              Text('Tanggal Nikah'),
+              InkWell(
+                onTap: () async {
+                  DateTime? selectedDate = await showDatePicker(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Error'),
-                      content:
-                          Text('Nama pengantin pria dan wanita harus diisi.'),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('OK'),
-                        ),
-                      ],
-                    ),
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
                   );
-                  return;
-                }
-
-                Nikah newNikah = Nikah(
-                  id_nikah: '',
-                  nama_pengantin_p: _nama_pengantin_pController.text,
-                  nama_pengantin_w: _nama_pengantin_wController.text,
-                  nama_penghulu: '',
-                  nama_wali: '',
-                  nama_qori: '',
-                  tgl_nikah: '',
-                  jam_nikah: '',
-                );
-
-                bool response = await nikahService.postData(
-                  newNikah.nama_pengantin_p,
-                  newNikah.nama_pengantin_w,
-                );
-
-                if (response) {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => NikahView()),
-                  );
-                } else {
-                  showDialog(
+                  if (selectedDate != null) {
+                    setState(() {
+                      _tglNikah = selectedDate;
+                    });
+                  }
+                },
+                child: Text(
+                  '${_tglNikah.day}/${_tglNikah.month}/${_tglNikah.year}',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              SizedBox(height: 16),
+              Text('Jam Nikah'),
+              InkWell(
+                onTap: () async {
+                  TimeOfDay? selectedTime = await showTimePicker(
                     context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Gagal Menambahkan Nikah'),
-                      content: Text(
-                          'Terjadi kesalahan saat menambahkan data nikah.'),
-                      actions: [
-                        ElevatedButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text('OK'),
-                        ),
-                      ],
-                    ),
+                    initialTime: TimeOfDay.now(),
                   );
-                }
-              },
-              child: Text('Submit'),
-            ),
-          ],
+                  if (selectedTime != null) {
+                    setState(() {
+                      _jamNikah = selectedTime;
+                    });
+                  }
+                },
+                child: Text(
+                  _formatTimeOfDay(_jamNikah),
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('Tambah Data Nikah'),
+              ),
+            ],
+          ),
         ),
       ),
     );

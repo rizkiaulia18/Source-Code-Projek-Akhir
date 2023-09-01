@@ -40,7 +40,8 @@ class _NikahViewState extends State<NikahView> {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (context) => ListNikah(selectedDay: _selectedDay)),
+        builder: (context) => ListNikah(selectedDay: _selectedDay),
+      ),
     );
   }
 
@@ -48,13 +49,11 @@ class _NikahViewState extends State<NikahView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Nikah',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'Nikah',
+          style: TextStyle(
+            fontSize: 20,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
@@ -71,35 +70,39 @@ class _NikahViewState extends State<NikahView> {
           ),
         ],
       ),
-      body: TableCalendar(
-        headerStyle: HeaderStyle(
-          titleCentered: true,
-        ),
-        calendarFormat: CalendarFormat.month,
-        focusedDay: _selectedDay,
-        firstDay: DateTime.utc(2023),
-        lastDay: DateTime.utc(2040),
-        availableCalendarFormats: {
-          CalendarFormat.month: 'Bulan',
-          // Hapus CalendarFormat.week di sini
-        },
-        selectedDayPredicate: (day) {
-          return isSameDay(_selectedDay, day);
-        },
-        onDaySelected: (selectedDay, focusedDay) {
-          setState(() {
-            _selectedDay = selectedDay;
-          });
-          navigateToListNikah();
-        },
-        eventLoader: (date) {
-          List<Nikah> nikahList = filterNikahByDate(date);
-          return nikahList.isNotEmpty ? [date] : [];
-        },
+      body: ListView(
+        children: [
+          TableCalendar(
+            headerStyle: HeaderStyle(
+              titleCentered: true,
+            ),
+            calendarFormat: CalendarFormat.month,
+            focusedDay: _selectedDay,
+            firstDay: DateTime.utc(2023),
+            lastDay: DateTime.utc(2040),
+            availableCalendarFormats: {
+              CalendarFormat.month: 'Bulan',
+            },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+              });
+              navigateToListNikah();
+            },
+            eventLoader: (date) {
+              List<Nikah> nikahList = filterNikahByDate(date);
+              return nikahList.isNotEmpty ? [date] : [];
+            },
+          ),
+        ],
       ),
     );
   }
 }
+
 
         // calendarBuilders: CalendarBuilders(
         //   selectedBuilder: (context, date, events) {

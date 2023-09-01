@@ -31,4 +31,17 @@ class Nikah {
       jam_nikah: json['jam_nikah'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id_nikah': id_nikah,
+      'nama_pengantin_p': nama_pengantin_p,
+      'nama_pengantin_w': nama_pengantin_w,
+      'nama_penghulu': nama_penghulu,
+      'nama_wali': nama_wali,
+      'nama_qori': nama_qori,
+      'tgl_nikah': tgl_nikah,
+      'jam_nikah': jam_nikah,
+    };
+  }
 }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:simasjid/pages/button.dart';
 import 'package:simasjid/pages/home.dart';
+import 'package:simasjid/model/setting.dart';
+import 'package:simasjid/service/url.dart';
+
+import '../service/SettingService.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -10,6 +14,8 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  late String _logoUrl = '';
+
   late TextEditingController _usernameController;
   late TextEditingController _passwordController;
 
@@ -18,6 +24,21 @@ class _LoginViewState extends State<LoginView> {
     super.initState();
     _usernameController = TextEditingController();
     _passwordController = TextEditingController();
+    _fetchSettingData();
+  }
+
+  Future<void> _fetchSettingData() async {
+    try {
+      final SettingService settingService = SettingService();
+      final List<Setting> settings = await settingService.fetchSettings();
+      if (settings.isNotEmpty) {
+        setState(() {
+          _logoUrl = "${BaseUrl.baseUrlImg}${settings[0].logo}";
+        });
+      }
+    } catch (e) {
+      // Handle error
+    }
   }
 
   @override
@@ -46,9 +67,11 @@ class _LoginViewState extends State<LoginView> {
               children: [
                 Center(
                   child: Container(
-                    width: 500,
-                    // height: 5,
-                    child: Image.asset("assets/logo/simasjid.png"),
+                    width: 300,
+                    child: _logoUrl.isNotEmpty
+                        ? Image.network(_logoUrl)
+                        : Image.asset(
+                            "assets/logo/masjid.png"), // Placeholder while loading the logo
                   ),
                 ),
                 const Text(
@@ -119,27 +142,16 @@ class _LoginViewState extends State<LoginView> {
                     style: buttonPrimary,
                   ),
                 ),
-                // Center(
-                //   child: Column(
-                //     children: [
-                //       // ... Your other widgets
-                //       SizedBox(height: 20),
-                //       Center(
-                //         child: ElevatedButton(
-                //           onPressed: () {
-                //             // Perform Google Sign-In when this button is pressed
-                //             // _handleGoogleSignIn();
-                //           },
-                //           child: Text(
-                //             "Login with Google",
-                //             style: TextStyle(color: Colors.white, fontSize: 16),
-                //           ),
-                //           style: buttonPrimary,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // )
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {},
+                    child: Text(
+                      "Login dengan Google",
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                    style: buttonPrimary,
+                  ),
+                ),
               ],
             ),
           ],
