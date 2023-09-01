@@ -3,6 +3,7 @@ class Setting {
   final String namaMasjid;
   final String idKota;
   final String alamat;
+  final String rek;
   final String logo;
 
   Setting({
@@ -10,6 +11,7 @@ class Setting {
     required this.namaMasjid,
     required this.idKota,
     required this.alamat,
+    required this.rek,
     required this.logo,
   });
 
@@ -19,6 +21,7 @@ class Setting {
       namaMasjid: json['nama_masjid'],
       idKota: json['id_kota'],
       alamat: json['alamat'],
+      rek: json['rek'],
       logo: json['logo'],
     );
   }

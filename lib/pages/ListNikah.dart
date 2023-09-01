@@ -55,15 +55,14 @@ class _ListNikahState extends State<ListNikah> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Nikah',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'List Nikah',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
       body: isLoading // Periksa isLoading
@@ -71,39 +70,51 @@ class _ListNikahState extends State<ListNikah> {
               child:
                   CircularProgressIndicator(), // Tampilkan CircularProgressIndicator
             )
-          : filteredNikah.isNotEmpty
-              ? ListView.separated(
-                  itemCount: filteredNikah.length,
-                  itemBuilder: (context, index) {
-                    Nikah nikah = filteredNikah[index];
-                    DateTime tglNikah = DateTime.parse(nikah.tgl_nikah);
-                    String formattedDate =
-                        DateFormat('dd MMM yyyy').format(tglNikah);
-                    // String formattedTime =
-                    //     DateFormat('HH:mm').format(DateTime.parse(nikah.jam_nikah));
-                    return ListTile(
-                      title: Text('${nikah.nama_pengantin_p}' +
-                          ' Dan ' +
-                          '${nikah.nama_pengantin_w}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('$formattedDate'),
-                          Text(nikah.jam_nikah),
-                        ],
-                      ),
-                      onTap: () {
-                        navigateToDetailNikah(nikah);
+          : Padding(
+              padding: EdgeInsets.fromLTRB(5, 10, 5, 0),
+              child: filteredNikah.isNotEmpty
+                  ? ListView.separated(
+                      itemCount: filteredNikah.length,
+                      itemBuilder: (context, index) {
+                        Nikah nikah = filteredNikah[index];
+                        DateTime tglNikah = DateTime.parse(nikah.tgl_nikah);
+                        String formattedDate =
+                            DateFormat('dd MMM yyyy').format(tglNikah);
+                        // String formattedTime =
+                        //     DateFormat('HH:mm').format(DateTime.parse(nikah.jam_nikah));
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(
+                                10), // Tambahkan radius di sini
+                          ),
+                          child: ListTile(
+                            title: Text('${nikah.nama_pengantin_p}' +
+                                ' Dan ' +
+                                '${nikah.nama_pengantin_w}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('$formattedDate'),
+                              ],
+                            ),
+                            trailing: Text(nikah.jam_nikah),
+                            onTap: () {
+                              navigateToDetailNikah(nikah);
+                            },
+                          ),
+                        );
                       },
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return Divider();
-                  },
-                )
-              : Center(
-                  child: Text('Tidak ada data nikah pada tanggal ini.'),
-                ),
+                      separatorBuilder: (context, index) {
+                        return Divider(
+                            // thickness: 10,
+                            );
+                      },
+                    )
+                  : Center(
+                      child: Text('Tidak ada data nikah pada tanggal ini.'),
+                    ),
+            ),
     );
   }
 }

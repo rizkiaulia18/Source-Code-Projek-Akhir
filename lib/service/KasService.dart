@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'package:simasjid/service/url.dart';
 
 class KasService {
-  static final String _baseUrl = '${BaseUrl.baseUrl}/apikasmasjid/';
+  static final String _baseUrl = '${BaseUrl.baseUrl}/ApiKasmasjid/';
 
   Future<List<Kas>> getKas() async {
     Uri urlApi = Uri.parse(_baseUrl);

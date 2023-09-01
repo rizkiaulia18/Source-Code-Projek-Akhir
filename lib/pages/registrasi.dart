@@ -3,128 +3,154 @@ import 'package:flutter/material.dart';
 import 'package:simasjid/pages/button.dart';
 import 'package:simasjid/pages/home.dart';
 import 'package:simasjid/model/setting.dart';
-import 'package:simasjid/pages/registrasi.dart';
+import 'package:simasjid/pages/v_login.dart';
 import 'package:simasjid/service/UsersService.dart';
 import 'package:simasjid/service/auth.dart';
 import 'package:simasjid/service/url.dart';
-
 import '../service/SettingService.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({Key? key}) : super(key: key);
+class RegistrasiView extends StatefulWidget {
+  const RegistrasiView({Key? key}) : super(key: key);
 
   @override
-  State<LoginView> createState() => _LoginViewState();
+  State<RegistrasiView> createState() => _RegistrasiViewState();
 }
 
-class _LoginViewState extends State<LoginView> {
+class _RegistrasiViewState extends State<RegistrasiView> {
+  Auth auth = Auth();
+  bool _isLoading = false;
+
   late String _logoUrl = '';
-  late Auth _auth = Auth();
-  late TextEditingController _usernameController;
+  late TextEditingController _namaUserController;
+  late TextEditingController _emailUserController;
   late TextEditingController _passwordController;
-  late UsersService _usersService; // Inisialisasi di sini
+  final UsersService _usersService = UsersService();
 
   @override
   void initState() {
     super.initState();
-    _usernameController = TextEditingController();
+    _namaUserController = TextEditingController();
+    _emailUserController = TextEditingController();
     _passwordController = TextEditingController();
-    _usersService = UsersService(); // Inisialisasi di sini
     _fetchSettingData();
   }
 
-  get auth => null;
+  Future<void> _uploadUser() async {
+    final nama = _namaUserController.text;
+    final email = _emailUserController.text.trim();
+    final password = _passwordController.text;
 
-  Future<void> _handleSignInWithEmail(BuildContext context) async {
-    String email = _usernameController.text.trim();
-    String password = _passwordController.text.trim();
-
-    Auth auth = Auth();
     try {
-      UserCredential userCredential =
-          await auth.signInWithEmailPassword(email, password);
-
-      if (userCredential.user!.emailVerified) {
-        String displayName = userCredential.user!.displayName ?? '';
-        String userEmail = userCredential.user!.email ?? '';
-        String? photoUrl = userCredential.user!.photoURL;
-
-        // Mengambil data nama dari UsersService
-        String? nama = await _usersService.getUserName(userEmail);
-
-        // Menyimpan data ke shared preferences
-        auth.storeUserData(
-          displayName,
-          userEmail,
-          photoUrl,
-          nama,
+      if (nama.isNotEmpty && email.isNotEmpty && password.isNotEmpty) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Loading'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16.0),
+                  Text('Mengupload data registrasi...'),
+                ],
+              ),
+            );
+          },
         );
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => HomePage(),
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text("Login Berhasil!", style: TextStyle(color: Colors.black)),
-            duration: const Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.white,
-          ),
-        );
+        await auth.registerWithEmailPassword(email, password);
+        await _usersService.uploadUserData(nama, email);
+
+        // await _userRepo.uploadUser(nama, email);
+
+        // Setelah email diverifikasi, user sudah seharusnya ada di dalam instance FirebaseAuth
+        User? user = FirebaseAuth.instance.currentUser;
+
+        Navigator.pop(context); // Tutup dialog loading
+
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text(
+                'Berhasil',
+                textAlign: TextAlign.center,
+              ),
+              content: Text('Registrasi berhasil. ' +
+                  (user != null && !user.emailVerified
+                      ? 'Silakan cek email Anda untuk verifikasi.'
+                      : 'Akan dikonfirmasi oleh Admin')),
+              actions: [
+                Center(
+                  child: ElevatedButton(
+                    style: buttonPrimary,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.pop(context, true);
+                    },
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ).then((_) {
+          // Setelah dialog berhasil ditutup, reset form
+          _namaUserController.clear();
+          _emailUserController.clear();
+        });
       } else {
         showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Gagal', textAlign: TextAlign.center),
-              content: const Text(
-                'Harap Verifikasi email terlebih dahulu!',
-                textAlign: TextAlign.center,
-              ),
+              title: const Text('Peringatan'),
+              content: const Text('Harap isi semua kolom'),
               actions: [
                 ElevatedButton(
-                  style: buttonPrimary,
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: const Center(
-                      child: Text(
-                    'OK',
-                    style: TextStyle(color: Colors.white),
-                  )),
+                  child: const Text('OK'),
                 ),
               ],
             );
           },
         );
       }
-    } catch (e) {
-      print('Kesalahan login dengan email dan password: $e');
-      if (e is FirebaseAuthException) {
-        String errorMessage = '';
-        if (e.code == 'user-not-found') {
-          errorMessage = "Email tidak terdaftar!";
-        } else if (e.code == 'wrong-password') {
-          errorMessage = "Password salah!";
-        } else if (e.code == 'invalid-email') {
-          errorMessage = "Format email tidak sesuai!";
-        } else {
-          errorMessage = "Login Gagal, Coba lagi!";
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      if (e.code == 'email-already-in-use') {
+        ScaffoldMessenger.of(context as BuildContext).showSnackBar(
           SnackBar(
-            content: Text(errorMessage, style: TextStyle(color: Colors.black)),
+            content: Text("email sudah terdaftar!",
+                style: TextStyle(color: Colors.black),
+                textAlign: TextAlign.center),
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Colors.grey,
           ),
         );
       }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Pendaftaran Gagal!",
+              style: TextStyle(color: Colors.black),
+              textAlign: TextAlign.center),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.grey,
+        ),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -142,21 +168,19 @@ class _LoginViewState extends State<LoginView> {
     }
   }
 
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
+  User? user = FirebaseAuth.instance.currentUser;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-            child: Text('SIMASJID',
-                style: TextStyle(
-                    fontSize: 25, color: Color.fromARGB(255, 150, 126, 118)))),
+        title: Text(
+          'Registrasi Akun',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
+          ),
+        ),
+        centerTitle: true,
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
       body: Container(
@@ -167,7 +191,6 @@ class _LoginViewState extends State<LoginView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 10),
-
                 Center(
                   child: Container(
                     width: 280,
@@ -177,55 +200,45 @@ class _LoginViewState extends State<LoginView> {
                   ),
                 ),
                 SizedBox(height: 10),
-
                 const Text(
-                  "Silahkan Login !!!",
+                  "Registrasi",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                // Tambahkan field Username
+                SizedBox(height: 10),
                 TextField(
-                  controller: _usernameController,
+                  controller: _namaUserController,
+                  decoration: InputDecoration(
+                    labelText: "Nama",
+                  ),
+                ),
+                SizedBox(height: 10),
+                TextField(
+                  controller: _emailUserController,
                   decoration: InputDecoration(
                     labelText: "Email",
                   ),
                 ),
                 SizedBox(height: 10),
-                // Tambahkan field Password
                 TextField(
                   controller: _passwordController,
                   decoration: InputDecoration(
                     labelText: "Password",
                   ),
-                  obscureText: true, // Agar karakter password tersembunyi
+                  obscureText: true,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => RegistrasiView()));
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => LoginView()));
                       },
                       child: Text(
-                        "Belum Punya Akun? Registrasi",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (_) => HomePage()));
-                      },
-                      child: Text(
-                        "Lewati",
+                        "Sudah punya akun ? Login",
                         style: TextStyle(
                           color: Colors.blue,
                           fontSize: 14,
@@ -242,10 +255,10 @@ class _LoginViewState extends State<LoginView> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            _handleSignInWithEmail(context);
+                            _isLoading ? null : _uploadUser();
                           },
                           child: Text(
-                            "Login",
+                            "Daftar",
                             style: TextStyle(color: Colors.white, fontSize: 16),
                           ),
                           style: buttonPrimary,
@@ -258,14 +271,20 @@ class _LoginViewState extends State<LoginView> {
                         ),
                         ElevatedButton(
                           onPressed: () async {
-                            await _auth.signInWithGoogle(context);
+                            await auth.signInWithGoogle(context);
+                            if (mounted) {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => HomePage()));
+                            }
                           },
                           child: Column(
                             children: [
                               Row(
                                 children: [
                                   Image.asset(
-                                    'assets/logo/google_logo.png', // Ganti dengan path logo Google Anda
+                                    'assets/logo/google_logo.png',
                                     width: 24,
                                     height: 24,
                                   ),

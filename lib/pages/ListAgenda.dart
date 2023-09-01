@@ -56,15 +56,14 @@ class _ListAgendaState extends State<ListAgenda> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Agenda',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'List Agenda',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
       body: isLoading // Periksa isLoading
@@ -72,37 +71,49 @@ class _ListAgendaState extends State<ListAgenda> {
               child:
                   CircularProgressIndicator(), // Tampilkan CircularProgressIndicator
             )
-          : filteredAgenda.isNotEmpty
-              ? ListView.separated(
-                  itemCount: filteredAgenda.length,
-                  itemBuilder: (context, index) {
-                    Agenda agenda = filteredAgenda[index];
-                    DateTime tglKegiatan = DateTime.parse(agenda.tglKegiatan);
-                    String formattedDate =
-                        DateFormat('dd MMM yyyy').format(tglKegiatan);
-                    // String formattedTime =
-                    //     DateFormat('HH:mm').format(DateTime.parse(agenda.wktKegiatan));
-                    return ListTile(
-                      title: Text(agenda.namaKegiatan),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(formattedDate),
-                          Text(agenda.wktKegiatan),
-                        ],
-                      ),
-                      onTap: () {
-                        navigateToDetailAgenda(agenda);
+          : Padding(
+              padding: EdgeInsets.fromLTRB(5, 10, 5, 0),
+              child: filteredAgenda.isNotEmpty
+                  ? ListView.separated(
+                      itemCount: filteredAgenda.length,
+                      itemBuilder: (context, index) {
+                        Agenda agenda = filteredAgenda[index];
+                        DateTime tglKegiatan =
+                            DateTime.parse(agenda.tglKegiatan);
+                        String formattedDate =
+                            DateFormat('dd MMM yyyy').format(tglKegiatan);
+                        // String formattedTime =
+                        //     DateFormat('HH:mm').format(DateTime.parse(agenda.wktKegiatan));
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(
+                                10), // Tambahkan radius di sini
+                          ),
+                          child: ListTile(
+                            title: Text(agenda.namaKegiatan),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(formattedDate),
+                                // Text(agenda.wktKegiatan),
+                              ],
+                            ),
+                            trailing: Text(agenda.wktKegiatan),
+                            onTap: () {
+                              navigateToDetailAgenda(agenda);
+                            },
+                          ),
+                        );
                       },
-                    );
-                  },
-                  separatorBuilder: (context, index) {
-                    return Divider();
-                  },
-                )
-              : Center(
-                  child: Text('Tidak ada data agenda pada tanggal ini.'),
-                ),
+                      separatorBuilder: (context, index) {
+                        return Divider();
+                      },
+                    )
+                  : Center(
+                      child: Text('Tidak ada data agenda pada tanggal ini.'),
+                    ),
+            ),
     );
   }
 }

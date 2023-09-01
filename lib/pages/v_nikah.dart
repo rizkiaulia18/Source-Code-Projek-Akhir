@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simasjid/model/nikah.dart';
 import 'package:simasjid/pages/AddNikah.dart';
 import 'package:simasjid/pages/ListNikah.dart';
 import 'package:simasjid/service/NikahService.dart';
 import 'package:table_calendar/table_calendar.dart';
+
+import 'button.dart';
 
 class NikahView extends StatefulWidget {
   const NikahView({Key? key}) : super(key: key);
@@ -16,15 +19,30 @@ class _NikahViewState extends State<NikahView> {
   List<Nikah> listNikah = [];
   NikahService nikahservice = NikahService();
   DateTime _selectedDay = DateTime.now();
+  String email = "";
 
   getData() async {
     listNikah = await nikahservice.getData();
     setState(() {});
   }
+  // getData() async {
+  //   listNikah = await nikahservice.getData(); // Mengambil semua data
+  //   // Filter data hanya dengan status "aktif"
+  //   listNikah = listNikah.where((nikah) => nikah.status == 'aktif').toList();
+  //   setState(() {});
+  // }
+
+  Future<void> loadUserGoogle() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      email = prefs.getString('email') ?? '';
+    });
+  }
 
   void initState() {
     getData();
     super.initState();
+    loadUserGoogle();
   }
 
   List<Nikah> filterNikahByDate(DateTime selectedDate) {
@@ -52,23 +70,29 @@ class _NikahViewState extends State<NikahView> {
         title: Text(
           'Nikah',
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 25,
             color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // Arahkan ke halaman AddNikah
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddNikah()),
-              );
-            },
-            icon: Icon(Icons.add),
-          ),
-        ],
+
+        // actions: [
+        //   ElevatedButton(
+        //     onPressed: () {
+        //       // Arahkan ke halaman AddNikah
+        //       Navigator.push(
+        //         context,
+        //         MaterialPageRoute(builder: (context) => AddNikah()),
+        //       );
+        //     },
+        //     child: Text(
+        //       'Boking',
+        //       style: TextStyle(color: Colors.white, fontSize: 16),
+        //     ),
+        //     style: buttonPrimary,
+        //   ),
+        // ],
       ),
       body: ListView(
         children: [
@@ -94,57 +118,58 @@ class _NikahViewState extends State<NikahView> {
             },
             eventLoader: (date) {
               List<Nikah> nikahList = filterNikahByDate(date);
+
               return nikahList.isNotEmpty ? [date] : [];
             },
+          ),
+          SizedBox(
+            height: 20,
+          ),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // Arahkan ke halaman AddNikah
+                if (email.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AddNikah()),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text('Belum Login'),
+                        content: Text(
+                            'Maaf Anda belum login, Silahkan login untuk mendaftar nikah'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context); // Tutup dialog
+                              // Navigator.pop(context); // Kembali ke halaman sebelumnya
+                            },
+                            child: Text(
+                              'OK',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                            style: buttonPrimary,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+              },
+              child: Text(
+                'Daftar Nikah',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+              style: buttonPrimary,
+            ),
           ),
         ],
       ),
     );
   }
 }
-
-
-        // calendarBuilders: CalendarBuilders(
-        //   selectedBuilder: (context, date, events) {
-        //     List<Nikah> nikahList = filterNikahByDate(date);
-        //     bool hasNikah = nikahList.isNotEmpty;
-        //     return Container(
-        //       margin: const EdgeInsets.all(4),
-        //       alignment: Alignment.center,
-        //       decoration: BoxDecoration(
-        //         color: hasNikah ? Colors.red : Colors.blue,
-        //         shape: BoxShape.circle,
-        //       ),
-        //       child: Text(
-        //         '${date.day}',
-        //         style: TextStyle(
-        //           color: Colors.white,
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
-
-// listNikah.isEmpty
-//           ? Center(child: CircularProgressIndicator())
-//           : ListView.separated(
-//               itemBuilder: (context, index) {
-//                 return ListTile(
-//                   // leading: CircleAvatar(
-//                   //   child: Text('${index + 1}'), // Menampilkan nomor item
-//                   // ),
-//                   title: Text(
-//                     listNikah[index].nama_pengantin_p +
-//                         " & " +
-//                         listNikah[index].nama_pengantin_w,
-//                   ),
-//                   subtitle: Text(listNikah[index].tgl_nikah),
-//                   trailing: Icon(Icons.arrow_forward_ios),
-//                   onTap: () {},
-//                 );
-//               },
-//               separatorBuilder: (context, index) {
-//                 return Divider();
-//               },
-//               itemCount: listNikah.length,
-//             ),

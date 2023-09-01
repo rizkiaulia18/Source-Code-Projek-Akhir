@@ -45,29 +45,32 @@ class SplashScreen extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             home: Scaffold(
-              backgroundColor: Color.fromARGB(255, 238, 227, 203),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                backgroundColor: Color.fromARGB(255, 238, 227, 203),
+                body: ListView(
                   children: [
-                    Container(
-                      width: 400,
-                      height: 400,
-                      child: Image.network(logoUrl),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      namaMasjid,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.black,
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 400,
+                            height: 400,
+                            child: Image.network(logoUrl),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            namaMasjid,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
-              ),
-            ),
+                )),
           );
         }
       },

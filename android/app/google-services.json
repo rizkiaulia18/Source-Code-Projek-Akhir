@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "698007809376",
+    "project_id": "simasjid-fe5e5",
+    "storage_bucket": "simasjid-fe5e5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698007809376:android:6f2bd558b8ca2dcf310205",
+        "android_client_info": {
+          "package_name": "com.example.simasjid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698007809376-c1rtpjvo7hf10ijlnsvcrpo5m2066ju2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.simasjid",
+            "certificate_hash": "2184fe34e6baa5607ad568b578cc9baaad703df9"
+          }
+        },
+        {
+          "client_id": "698007809376-6dhd1f2b8la1u7urvbplir5kupnviqfa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtW5t2uh6OqjUhCj1PNh9nHH_FPNQ1LgY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698007809376-3obmfiab1bfr2bm6crlu5e0jnqdq21iu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "698007809376-190kdqp7l45olfd5pjlq1hm8ikr25ks7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.simasjid"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

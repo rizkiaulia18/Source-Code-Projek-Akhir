@@ -3,8 +3,8 @@ import '../model/Kelompok.dart';
 import '../model/PesertaPribadi.dart';
 import '../model/peserta_kelompok.dart';
 import '../service/KelompokService.dart';
-import '../service/PesertaPribadiService.dart';
 import '../service/PesertaKelompokService.dart';
+import '../service/PesertaPribadiService.dart';
 import 'ListPesetaKelompok.dart';
 
 class QurbanView extends StatefulWidget {
@@ -19,7 +19,8 @@ class _QurbanViewState extends State<QurbanView>
   late TabController _tabController;
 
   List<Kelompok> _kelompokList = [];
-  List<PesertaPribadi> _pesertaPribadiList = [];
+  List<PesertaPribadi> _pesertaPribadiList =
+      []; // Tambahkan list peserta pribadi
 
   @override
   void initState() {
@@ -27,7 +28,7 @@ class _QurbanViewState extends State<QurbanView>
     _tabController = TabController(length: 2, vsync: this);
 
     _fetchKelompok();
-    _fetchPesertaPribadi();
+    _fetchPesertaPribadi(); // Panggil fungsi untuk mengambil data peserta pribadi
   }
 
   @override
@@ -80,44 +81,18 @@ class _QurbanViewState extends State<QurbanView>
     }
   }
 
-  Future<void> _fetchPesertaKelompokByKelompok(int idKelompok) async {
-    try {
-      final List<PesertaKelompok>? pesertaKelompokList =
-          await PesertaKelompokService().fetchPesertaKelompok(idKelompok);
-
-      if (pesertaKelompokList != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ListPesertaKelompok(
-              idKelompokDipilih: idKelompok,
-              pesertaKelompokList: pesertaKelompokList,
-            ),
-          ),
-        );
-      } else {
-        print('Response is null or empty.');
-        // Handle empty response or show appropriate message.
-      }
-    } catch (e) {
-      print('Error fetching peserta kelompok data: $e');
-      // Handle error here, show error message, etc.
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Qurban',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'Qurban',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true,
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
         bottom: TabBar(
           controller: _tabController,
@@ -138,9 +113,26 @@ class _QurbanViewState extends State<QurbanView>
                   itemBuilder: (context, index) {
                     return ListTile(
                       title: Text('${_kelompokList[index].namaKelompok}'),
-                      onTap: () {
-                        _fetchPesertaKelompokByKelompok(
-                            _kelompokList[index].idKelompok);
+                      onTap: () async {
+                        final List<PesertaKelompok>? pesertaKelompokList =
+                            await PesertaKelompokService().fetchPesertaKelompok(
+                                _kelompokList[index].idKelompok);
+
+                        if (pesertaKelompokList != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ListPesertaKelompok(
+                                idKelompokDipilih:
+                                    _kelompokList[index].idKelompok,
+                                pesertaKelompokList: pesertaKelompokList,
+                              ),
+                            ),
+                          );
+                        } else {
+                          print('Response is null or empty.');
+                          // Handle empty response or show appropriate message.
+                        }
                       },
                     );
                   },
@@ -153,10 +145,8 @@ class _QurbanViewState extends State<QurbanView>
                   itemCount: _pesertaPribadiList.length,
                   itemBuilder: (context, index) {
                     return ListTile(
-                      title: Text(
-                          'Nama Peserta: ${_pesertaPribadiList[index].namaPeserta}'),
-                      subtitle:
-                          Text('Biaya: ${_pesertaPribadiList[index].biaya}'),
+                      title: Text('${_pesertaPribadiList[index].namaPeserta}'),
+                      subtitle: Text('Rp. ${_pesertaPribadiList[index].biaya}'),
                     );
                   },
                 ),

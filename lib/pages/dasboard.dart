@@ -1,14 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simasjid/pages/button.dart';
 import 'package:simasjid/pages/v_agenda.dart';
+import 'package:simasjid/pages/v_jadwal_shalat.dart';
 import 'package:simasjid/pages/v_kas.dart';
+import 'package:simasjid/pages/v_komentar.dart';
 import 'package:simasjid/pages/v_nikah.dart';
 import 'package:simasjid/pages/v_qurban.dart';
 import '../model/setting.dart';
 import '../service/SettingService.dart';
 import '../service/url.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  String email = '';
   final SettingService settingService = SettingService();
+
+  Future<void> loadEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      email = prefs.getString('email') ?? '';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadEmail();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,8 +201,92 @@ class Dashboard extends StatelessWidget {
                         )
                       ],
                     ),
+                    Column(
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 70,
+                          child: IconButton(
+                            onPressed: () {
+                              if (email.isNotEmpty) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) {
+                                    return KomentarView();
+                                  }),
+                                );
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text('Belum Login'),
+                                      content: Text(
+                                          'Maaf Anda belum login, Anda harus login untuk melihat dan mengirim komentar.'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                            'OK',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 16),
+                                          ),
+                                          style: buttonPrimary,
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              }
+                            },
+                            icon: Image.asset("assets/icons/icon_comment.png"),
+                          ),
+                        ),
+                        Text(
+                          "Komentar",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 150, 126, 118),
+                          ),
+                        )
+                      ],
+                    ),
                   ],
                 ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 70,
+                          child: IconButton(
+                            onPressed: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return JadwalShalatView();
+                              }));
+                            },
+                            icon: Image.asset("assets/icons/ijadwal.png"),
+                          ),
+                        ),
+                        Text(
+                          "Jadwal Shalat",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Color.fromARGB(255, 150, 126, 118),
+                          ),
+                        )
+                      ],
+                    ),
+                  ],
+                )
               ],
             );
           }

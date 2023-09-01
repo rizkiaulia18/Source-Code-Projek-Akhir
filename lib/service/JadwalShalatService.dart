@@ -1,22 +1,24 @@
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'dart:convert';
 
 import '../model/jadwal_shalat.dart';
 
 class JadwalShalatService {
-  static final String _baseUrl = 'https://api.myquran.com/v1/sholat/jadwal/';
+  Future<JadwalShalat?> fetchJadwalShalat() async {
+    String formattedDate = DateFormat('yyyy/MM/dd').format(DateTime.now());
+    final response = await http.get(Uri.parse(
+        'https://api.myquran.com/v1/sholat/jadwal/0119/$formattedDate'));
 
-  Future<JadwalShalat> getJadwalShalat(String id, DateTime date) async {
-    String formattedDate = DateFormat('yyyy/MM/dd').format(date);
-    Uri urlApi = Uri.parse('$_baseUrl$id/$formattedDate');
-
-    final response = await http.get(urlApi);
     if (response.statusCode == 200) {
-      Map<String, dynamic> data = json.decode(response.body);
-      return JadwalShalat.fromJson(data['data']);
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      // print('Response Data: $responseData'); // Tambahkan pernyataan print ini
+      final Map<String, dynamic> data = responseData['data'] ?? {};
+      // print('Data from API: $data'); // Tambahkan pernyataan print ini
+      return JadwalShalat.fromJson(data);
     } else {
-      throw Exception("Failed to load data Jadwal Shalat");
+      print('HTTP Error: ${response.statusCode}');
     }
+    return null;
   }
 }

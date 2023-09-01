@@ -14,10 +14,14 @@ class _KiblatViewState extends State<KiblatView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-            child: Text('Arah Kiblat',
-                style: TextStyle(
-                    fontSize: 20, color: Color.fromARGB(255, 150, 126, 118)))),
+        title: Text(
+          'Arah Kiblat',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
+          ),
+        ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
       body: ListView(

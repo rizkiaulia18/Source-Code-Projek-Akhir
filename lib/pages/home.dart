@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simasjid/pages/dasboard.dart';
-import 'package:simasjid/pages/settings.dart';
+import 'package:simasjid/pages/profile.dart';
 import 'package:simasjid/pages/v_kiblat.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  // final String? userName;
+  // final String? userEmail;
+  // final String? imageUrl;
+
+  // HomePage({this.userName, this.userEmail, this.imageUrl});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -13,15 +18,30 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //Properties
   int currentTab = 0;
-  final List<Widget> screens = [
+
+  List<Widget> screens = [
     Dashboard(),
-    Settings(),
+    Profile(),
   ]; // to store tab views
 
   //active page
   Widget currentSreen = Dashboard(); //initial screen in viewport
 
   final PageStorageBucket bucket = PageStorageBucket();
+  String googleToken = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGoogleToken();
+  }
+
+  Future<void> _loadGoogleToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      googleToken = prefs.getString('googleToken') ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +118,8 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () {
                       setState(
                         () {
-                          currentSreen = Settings();
+                          currentSreen = Profile();
+
                           currentTab = 1;
                         },
                       );

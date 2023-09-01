@@ -6,7 +6,7 @@ import '../model/setting.dart'; // Ganti 'your_app' dengan package name Anda
 
 class SettingService {
   Future<List<Setting>> fetchSettings() async {
-    final response = await http.get(Uri.parse('${BaseUrl.baseUrl}apisetting'));
+    final response = await http.get(Uri.parse('${BaseUrl.baseUrl}ApiSetting'));
 
     if (response.statusCode == 200) {
       return parseSettings(response.body);

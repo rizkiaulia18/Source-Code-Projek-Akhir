@@ -14,169 +14,81 @@ class DetailAgenda extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Agenda',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'Detail Agenda',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Nama Kegiatan :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      body: ListView(
+        children: [
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 3,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildDetailRow('Nama Kegiatan:', agenda.namaKegiatan),
+                    // SizedBox(height: 16),
+                    _buildDetailRow('Pelaksana Kegiatan:', agenda.plkKegiatan),
+                    // SizedBox(height: 16),
+                    _buildDetailRow('Tempat Kegiatan:', agenda.tmpKegiatan),
+                    // SizedBox(height: 16),
+                    _buildDetailRow('Tanggal Kegiatan:', formattedDate),
+                    // SizedBox(height: 16),
+                    _buildDetailRow('Waktu Kegiatan:', agenda.wktKegiatan),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 4),
-            Text(
-              agenda.namaKegiatan,
-              style: TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String title, String value) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+      margin: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
             ),
-            SizedBox(height: 16),
-            Text(
-              'Pelaksana Kegiatan :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              agenda.plkKegiatan,
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Tempat Kegiatan :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              agenda.tmpKegiatan,
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Tanggal Kegiatan :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              formattedDate,
-              style: TextStyle(fontSize: 16),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Waktu Kegiatan :',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              agenda.wktKegiatan,
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-
-// // ignore_for_file: unused_local_variable
-
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'package:simasjid/model/agenda.dart';
-
-// class AgendaDetailPage extends StatelessWidget {
-//   final Agenda agenda;
-
-//   AgendaDetailPage({required this.agenda});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
-//     final DateFormat timeFormat = DateFormat('HH:mm');
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(
-//           'Detail Agenda',
-//           style: TextStyle(
-//             fontSize: 20,
-//             color: Color.fromARGB(255, 150, 126, 118),
-//           ),
-//         ),
-//         backgroundColor: Color.fromARGB(255, 238, 227, 203),
-//         centerTitle: true,
-//       ),
-//       body: Padding(
-//         padding: EdgeInsets.all(16.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               agenda.namaKegiatan,
-//               style: TextStyle(
-//                 fontSize: 20,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             SizedBox(height: 8.0),
-//             // Text(dateFormat.format(agenda.tglKegiatan as DateTime),
-//             Text(
-//               agenda.tglKegiatan,
-//               style: TextStyle(
-//                 fontSize: 16,
-//                 color: Colors.grey,
-//               ),
-//             ),
-//             // Text(timeFormat.format(agenda.wktKegiatan as DateTime),
-//             Text(
-//               agenda.wktKegiatan,
-//               style: TextStyle(
-//                 fontSize: 16,
-//                 color: Colors.grey,
-//               ),
-//             ),
-//             SizedBox(height: 16.0),
-//             Text(
-//               'Pelaksanaan Kegiatan:',
-//               style: TextStyle(
-//                 fontSize: 18,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             SizedBox(height: 8.0),
-//             Text(
-//               agenda.plkKegiatan,
-//               style: TextStyle(
-//                 fontSize: 16,
-//               ),
-//             ),
-//             SizedBox(height: 16.0),
-//             Text(
-//               'Tempat Kegiatan:',
-//               style: TextStyle(
-//                 fontSize: 18,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             SizedBox(height: 8.0),
-//             Text(
-//               agenda.tmpKegiatan,
-//               style: TextStyle(
-//                 fontSize: 16,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

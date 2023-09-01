@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simasjid/model/nikah.dart';
-
+import 'dart:io';
 import '../service/NikahService.dart';
+import '../service/SettingService.dart';
+import '../model/setting.dart';
+import 'button.dart';
 
 class AddNikah extends StatefulWidget {
   @override
@@ -11,14 +16,23 @@ class AddNikah extends StatefulWidget {
 class _AddNikahState extends State<AddNikah> {
   final _formKey = GlobalKey<FormState>();
   final _nikahService = NikahService();
+  final ImagePicker _imagePicker = ImagePicker();
+  File? _buktiDp;
+  List<Setting> _settings = [];
+  List<Nikah> _nikah = [];
 
   String _namaPengantinP = '';
   String _namaPengantinW = '';
   String _namaPenghulu = '';
   String _namaWali = '';
   String _namaQori = '';
+  String _no_hp = '';
   DateTime _tglNikah = DateTime.now();
   TimeOfDay _jamNikah = TimeOfDay.now();
+  String _status = 'pending';
+  String _email = '';
+  String _createdBy = '';
+  String _createdAt = '';
 
   String _formatTimeOfDay(TimeOfDay timeOfDay) {
     final now = DateTime.now();
@@ -29,35 +43,157 @@ class _AddNikahState extends State<AddNikah> {
     return formattedTime;
   }
 
+  Future<void> _fetchSettings() async {
+    try {
+      List<Setting> settings = await SettingService().fetchSettings();
+      setState(() {
+        _settings = settings;
+      });
+    } catch (error) {
+      // Handle error
+    }
+  }
+
+  Future<void> _fetchNikahData() async {
+    try {
+      List<Nikah> nikahData = await _nikahService
+          .getData(); // Gantilah ini dengan cara Anda mengambil data nikah
+      setState(() {
+        _nikah = nikahData;
+      });
+    } catch (error) {
+      // Handle error
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSettings();
+    _fetchUserInfo();
+    _fetchNikahData(); // Panggil fungsi untuk mengambil data nikah
+  }
+
+  Future<void> _fetchUserInfo() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _email = prefs.getString('email') ?? '';
+      _createdBy =
+          prefs.getString('displayName') ?? ''; // Ambil dari displayName
+    });
+
+    // Jika _createdBy kosong, ambil dari nama
+    if (_createdBy.isEmpty) {
+      _createdBy = prefs.getString('nama') ?? '';
+    }
+  }
+
+  int _countNikahOnSelectedDate(DateTime selectedDate) {
+    int count = 0;
+    for (var nikah in _nikah) {
+      DateTime nikahDate = DateTime.parse(nikah.tgl_nikah);
+      if (nikahDate.year == selectedDate.year &&
+          nikahDate.month == selectedDate.month &&
+          nikahDate.day == selectedDate.day) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_buktiDp == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Anda harus memilih gambar bukti DP')),
+        );
+        return;
+      }
+
       _formKey.currentState!.save();
 
-      // Buat objek Nikah berdasarkan data yang diisi oleh pengguna
-      Nikah newNikah = Nikah(
-        id_nikah: '', // Jika Anda menggunakan auto-increment id, biarkan kosong
-        nama_pengantin_p: _namaPengantinP,
-        nama_pengantin_w: _namaPengantinW,
-        nama_penghulu: _namaPenghulu,
-        nama_wali: _namaWali,
-        nama_qori: _namaQori,
-        tgl_nikah: _tglNikah.toString(),
-        jam_nikah: _formatTimeOfDay(
-            _jamNikah), // Menggunakan metode _formatTimeOfDay dari kelas ini
-      );
+      int nikahCount = _countNikahOnSelectedDate(_tglNikah);
 
-      // Kirim data nikah baru ke API
-      await _nikahService.postData(newNikah);
+      if (nikahCount >= 3) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Maksimal 3 data nikah pada tanggal yang sama')),
+        );
+        return;
+      }
 
-      // Tampilkan snackbar sebagai notifikasi bahwa data berhasil ditambahkan
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Data nikah berhasil ditambahkan!'),
-        ),
-      );
+      try {
+        DateTime now = DateTime.now();
+        _createdAt =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+        String result = await _nikahService.postData(
+          _namaPengantinP,
+          _namaPengantinW,
+          _namaPenghulu,
+          _namaWali,
+          _namaQori,
+          _no_hp,
+          _tglNikah.toString(),
+          _formatTimeOfDay(_jamNikah),
+          _buktiDp!,
+          _status,
+          _email,
+          _createdBy,
+          _createdAt,
+        );
 
-      // Kembali ke halaman sebelumnya
-      Navigator.pop(context);
+        // Tampilkan alert dialog jika data berhasil ditambahkan
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Sukses'),
+              content: Text(result),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: buttonPrimary,
+                ),
+              ],
+            );
+          },
+        );
+
+        _formKey.currentState!.reset();
+        setState(() {
+          _buktiDp = null;
+        });
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.toString())),
+        );
+      }
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _buktiDp = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final pickedFile = await _imagePicker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _buktiDp = File(pickedFile.path);
+      });
     }
   }
 
@@ -65,7 +201,15 @@ class _AddNikahState extends State<AddNikah> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tambah Data Nikah'),
+        title: Text(
+          'Daftar Jadwal Nikah',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
+          ),
+        ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
+        backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -98,21 +242,28 @@ class _AddNikahState extends State<AddNikah> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nama Penghulu'),
-                onSaved: (value) {
-                  _namaPenghulu = value!;
+                decoration: InputDecoration(
+                    labelText: 'Nama Orang Tua / Wali dari Pengantin Wanita'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Nama Wali tidak boleh kosong';
+                  }
+                  return null;
                 },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Nama Wali'),
                 onSaved: (value) {
                   _namaWali = value!;
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Nama Qori'),
+                decoration: InputDecoration(labelText: 'Nomor HP / WA'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Nomor HP tidak boleh kosong';
+                  }
+                  return null;
+                },
                 onSaved: (value) {
-                  _namaQori = value!;
+                  _no_hp = value!;
                 },
               ),
               SizedBox(height: 16),
@@ -156,10 +307,107 @@ class _AddNikahState extends State<AddNikah> {
                 ),
               ),
               SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Tambah Data Nikah'),
+              Text(
+                '*Silahkan input bukti pembayaran DP ke Rekening berikut :',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                ),
               ),
+              SizedBox(height: 5),
+              Text(
+                _settings.isNotEmpty
+                    ? '${_settings[0].rek}'
+                    : 'Nomor Rekening tidak tersedia',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text('Pilih Sumber Gambar'),
+                        actions: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _pickImage();
+                                },
+                                child: Text(
+                                  'Galeri',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                                style: buttonPrimary,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _pickImageFromCamera();
+                                },
+                                child: Text(
+                                  'Kamera',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16),
+                                ),
+                                style: buttonPrimary,
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: Icon(
+                  Icons.camera_alt,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  'Pilih Bukti DP',
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                style: buttonPrimary,
+              ),
+              if (_buktiDp != null)
+                GestureDetector(
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Image.file(_buktiDp!),
+                        );
+                      },
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    child: Image.file(
+                      _buktiDp!,
+                      height: 100,
+                    ),
+                  ),
+                ),
+              SizedBox(height: 16),
+              if (_buktiDp != null)
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: Text(
+                    'Booking Nikah',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: buttonPrimary,
+                ),
             ],
           ),
         ),

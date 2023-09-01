@@ -25,56 +25,60 @@ class _ListPesertaKelompokState extends State<ListPesertaKelompok> {
   }
 
   Future<void> _fetchPesertaKelompokByKelompok() async {
-  try {
-    List<PesertaKelompok>? pesertaKelompokList =
-        await PesertaKelompokService()
-            .fetchPesertaKelompok(widget.idKelompokDipilih);
+    try {
+      List<PesertaKelompok>? pesertaKelompokList =
+          await PesertaKelompokService()
+              .fetchPesertaKelompok(widget.idKelompokDipilih);
 
-    if (pesertaKelompokList != null) {
-      setState(() {
-        _filteredPesertaKelompokList = pesertaKelompokList;
-      });
-    } else {
-      print('Response is null or empty.');
-      // Handle empty response or show appropriate message.
+      if (pesertaKelompokList != null && pesertaKelompokList.isNotEmpty) {
+        setState(() {
+          _filteredPesertaKelompokList = pesertaKelompokList;
+        });
+      } else {
+        setState(() {
+          _filteredPesertaKelompokList = []; // Clear the list
+        });
+      }
+    } catch (e) {
+      print('Error fetching peserta kelompok data: $e');
+      // Handle error here, show error message, etc.
     }
-  } catch (e) {
-    print('Error fetching peserta kelompok data: $e');
-    // Handle error here, show error message, etc.
   }
-}
-
-
-  // ... (code for build method and other parts)
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Peserta Kelompok',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'Peserta Kelompok',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
-      body: _filteredPesertaKelompokList.isEmpty
-          ? Center(child: Text('Tidak ada data peserta kelompok'))
-          : ListView.builder(
+      body: _filteredPesertaKelompokList.isNotEmpty
+          ? ListView.builder(
               itemCount: _filteredPesertaKelompokList.length,
               itemBuilder: (context, index) {
                 final pesertaKelompok = _filteredPesertaKelompokList[index];
-                return ListTile(
-                  title: Text('Nama Peserta: ${pesertaKelompok.namaPeserta}'),
-                  subtitle: Text('Alamat: ${pesertaKelompok.biaya}'),
-                  // Add more fields as needed to display relevant information.
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius:
+                        BorderRadius.circular(10), // Tambahkan radius di sini
+                  ),
+                  child: ListTile(
+                    title: Text('${pesertaKelompok.namaPeserta}'),
+                    subtitle: Text('Rp. ${pesertaKelompok.biaya}'),
+                    // Add more fields as needed to display relevant information.
+                  ),
                 );
               },
-            ),
+            )
+          : Center(child: Text('Tidak ada data peserta kelompok')),
     );
   }
 }

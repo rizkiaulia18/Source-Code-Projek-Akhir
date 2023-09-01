@@ -47,42 +47,45 @@ class _AgendaViewState extends State<AgendaView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Center(
-          child: Text(
-            'Agenda',
-            style: TextStyle(
-              fontSize: 20,
-              color: Color.fromARGB(255, 150, 126, 118),
-            ),
+        title: Text(
+          'Agenda',
+          style: TextStyle(
+            fontSize: 25,
+            color: Color.fromARGB(255, 150, 126, 118),
           ),
         ),
+        centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
-      body: TableCalendar(
-        headerStyle: HeaderStyle(
-          titleCentered: true,
-        ),
-        calendarFormat: CalendarFormat.month,
-        focusedDay: _selectedDay,
-        firstDay: DateTime.utc(2023),
-        lastDay: DateTime.utc(2040),
-        availableCalendarFormats: {
-          CalendarFormat.month: 'Bulan',
-          // Hapus CalendarFormat.week di sini
-        },
-        selectedDayPredicate: (day) {
-          return isSameDay(_selectedDay, day);
-        },
-        onDaySelected: (selectedDay, focusedDay) {
-          setState(() {
-            _selectedDay = selectedDay;
-          });
-          navigateToListAgenda();
-        },
-        eventLoader: (date) {
-          List<Agenda> agendaList = filterAgendaByDate(date);
-          return agendaList.isNotEmpty ? [date] : [];
-        },
+      body: ListView(
+        children: [
+          TableCalendar(
+            headerStyle: HeaderStyle(
+              titleCentered: true,
+            ),
+            calendarFormat: CalendarFormat.month,
+            focusedDay: _selectedDay,
+            firstDay: DateTime.utc(2023),
+            lastDay: DateTime.utc(2040),
+            availableCalendarFormats: {
+              CalendarFormat.month: 'Bulan',
+              // Hapus CalendarFormat.week di sini
+            },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+              });
+              navigateToListAgenda();
+            },
+            eventLoader: (date) {
+              List<Agenda> agendaList = filterAgendaByDate(date);
+              return agendaList.isNotEmpty ? [date] : [];
+            },
+          ),
+        ],
       ),
     );
   }

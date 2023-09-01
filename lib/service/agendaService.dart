@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:simasjid/service/url.dart';
 
 class AgendaService {
-  static final String _baseUrl = '${BaseUrl.baseUrl}apiagenda/';
+  static final String _baseUrl = '${BaseUrl.baseUrl}ApiAgenda/';
 
   Future getAgenda() async {
     Uri urlApi = Uri.parse(_baseUrl);

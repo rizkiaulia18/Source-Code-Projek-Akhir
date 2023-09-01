@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final agenda = agendaFromJson(jsonString);
-
 import 'dart:convert';
 
 List<Agenda> agendaFromJson(String str) =>
