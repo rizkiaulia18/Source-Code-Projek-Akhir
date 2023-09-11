@@ -115,9 +115,37 @@ class _AddNikahState extends State<AddNikah> {
       int nikahCount = _countNikahOnSelectedDate(_tglNikah);
 
       if (nikahCount >= 3) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Maksimal 3 data nikah pada tanggal yang sama')),
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //       content: Text('Maksimal 3 data nikah pada tanggal yang sama')),
+        // );
+        String result1 =
+            "Maksimal 3 data nikah pada tanggal yang sama, silahkan pilih tanggal lain";
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text(
+                'Info!!!',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+              content: Text(result1),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'OK',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  style: buttonPrimary,
+                ),
+              ],
+            );
+          },
         );
         return;
       }

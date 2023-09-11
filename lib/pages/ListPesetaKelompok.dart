@@ -59,26 +59,38 @@ class _ListPesertaKelompokState extends State<ListPesertaKelompok> {
         centerTitle: true, // Tambahkan ini untuk mengatur judul di tengah
         backgroundColor: Color.fromARGB(255, 238, 227, 203),
       ),
-      body: _filteredPesertaKelompokList.isNotEmpty
-          ? ListView.builder(
-              itemCount: _filteredPesertaKelompokList.length,
-              itemBuilder: (context, index) {
-                final pesertaKelompok = _filteredPesertaKelompokList[index];
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius:
-                        BorderRadius.circular(10), // Tambahkan radius di sini
+      body: // Konten halaman Peserta Kelompok
+          _filteredPesertaKelompokList.isNotEmpty
+              ? Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: ListView.builder(
+                    itemCount: _filteredPesertaKelompokList.length,
+                    itemBuilder: (context, index) {
+                      final pesertaKelompok =
+                          _filteredPesertaKelompokList[index];
+                      return Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ListTile(
+                                title: Text('${pesertaKelompok.namaPeserta}'),
+                                subtitle: Text('Rp. ${pesertaKelompok.biaya}'),
+                                // Add more fields as needed to display relevant information.
+                              ),
+                            ),
+                            Divider(), // Add a Divider widget here
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                  child: ListTile(
-                    title: Text('${pesertaKelompok.namaPeserta}'),
-                    subtitle: Text('Rp. ${pesertaKelompok.biaya}'),
-                    // Add more fields as needed to display relevant information.
-                  ),
-                );
-              },
-            )
-          : Center(child: Text('Tidak ada data peserta kelompok')),
+                )
+              : Center(child: Text('Tidak ada data peserta kelompok')),
     );
   }
 }

@@ -176,6 +176,11 @@ class _DashboardState extends State<Dashboard> {
                         )
                       ],
                     ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
                     Column(
                       children: [
                         Container(
@@ -255,11 +260,6 @@ class _DashboardState extends State<Dashboard> {
                         )
                       ],
                     ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
                     Column(
                       children: [
                         Container(

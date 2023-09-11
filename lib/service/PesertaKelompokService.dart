@@ -8,7 +8,7 @@ class PesertaKelompokService {
   Future<List<PesertaKelompok>?> fetchPesertaKelompok(int idKelompok) async {
     try {
       final response = await http.get(Uri.parse(
-          '${BaseUrl.baseUrl}apipesertakelompok?id_kelompok=$idKelompok'));
+          '${BaseUrl.baseUrl}ApiPesertaKelompok?id_kelompok=$idKelompok'));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);

@@ -11,7 +11,7 @@ class NikahService {
   Future<List<Nikah>> getData() async {
     try {
       final response =
-          await http.get(Uri.parse('${BaseUrl.baseUrl}apinikah?status=aktif'));
+          await http.get(Uri.parse('${BaseUrl.baseUrl}ApiNikah?status=aktif'));
       if (response.statusCode == 200) {
         Iterable it = jsonDecode(response.body);
         List<Nikah> nikah = it.map((e) => Nikah.fromJson(e)).toList();
@@ -45,7 +45,7 @@ class NikahService {
     String formattedDate =
         DateFormat('yyyy-MM-dd').format(DateTime.parse(tgl_nikah));
 
-    final url = Uri.parse('${BaseUrl.baseUrl}apinikah/create');
+    final url = Uri.parse('${BaseUrl.baseUrl}ApiNikah/create');
 
     final request = http.MultipartRequest('POST', url);
     request.fields['nama_pengantin_p'] = nama_pengantin_p;

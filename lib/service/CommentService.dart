@@ -24,7 +24,7 @@ class CommentService {
 
   Future<String> postComment(
       String content, String email, String createdBy) async {
-    final url = Uri.parse('${BaseUrl.baseUrl}/apikomentar/create');
+    final url = Uri.parse('${BaseUrl.baseUrl}/ApiKomentar/create');
     final request = http.MultipartRequest('POST', url);
     request.fields['content'] = content;
     request.fields['email'] = email;

@@ -106,49 +106,90 @@ class _QurbanViewState extends State<QurbanView>
         controller: _tabController,
         children: [
           // Konten halaman Kelompok
+          // Konten halaman Kelompok
           _kelompokList.isEmpty
               ? Center(child: Text('Tidak ada data kelompok '))
-              : ListView.builder(
-                  itemCount: _kelompokList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('${_kelompokList[index].namaKelompok}'),
-                      onTap: () async {
-                        final List<PesertaKelompok>? pesertaKelompokList =
-                            await PesertaKelompokService().fetchPesertaKelompok(
-                                _kelompokList[index].idKelompok);
-
-                        if (pesertaKelompokList != null) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ListPesertaKelompok(
-                                idKelompokDipilih:
-                                    _kelompokList[index].idKelompok,
-                                pesertaKelompokList: pesertaKelompokList,
-                              ),
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 8, 5, 0),
+                  child: ListView.separated(
+                    itemCount: _kelompokList.length,
+                    separatorBuilder: (context, index) =>
+                        Divider(thickness: 1), // Add a Divider between items
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-                        } else {
-                          print('Response is null or empty.');
-                          // Handle empty response or show appropriate message.
-                        }
-                      },
-                    );
-                  },
+                            child: ListTile(
+                              title:
+                                  Text('${_kelompokList[index].namaKelompok}'),
+                              onTap: () async {
+                                final List<PesertaKelompok>?
+                                    pesertaKelompokList =
+                                    await PesertaKelompokService()
+                                        .fetchPesertaKelompok(
+                                            _kelompokList[index].idKelompok);
+
+                                if (pesertaKelompokList != null) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ListPesertaKelompok(
+                                        idKelompokDipilih:
+                                            _kelompokList[index].idKelompok,
+                                        pesertaKelompokList:
+                                            pesertaKelompokList,
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  print('Response is null or empty.');
+                                  // Handle empty response or show an appropriate message.
+                                }
+                              },
+                            ),
+                          ),
+                          // Divider(
+                          //   thickness: 1,
+                          // ), // Add a Divider widget here
+                        ],
+                      );
+                    },
+                  ),
                 ),
 
           // Konten halaman Pribadi
+          // Konten halaman Pribadi
           _pesertaPribadiList.isEmpty
               ? Center(child: Text('Tidak ada data peserta pribadi'))
-              : ListView.builder(
-                  itemCount: _pesertaPribadiList.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text('${_pesertaPribadiList[index].namaPeserta}'),
-                      subtitle: Text('Rp. ${_pesertaPribadiList[index].biaya}'),
-                    );
-                  },
+              : Padding(
+                  padding: const EdgeInsets.fromLTRB(5, 8, 5, 0),
+                  child: ListView.separated(
+                    itemCount: _pesertaPribadiList.length,
+                    separatorBuilder: (context, index) =>
+                        Divider(thickness: 1), // Add a Divider between items
+                    itemBuilder: (context, index) {
+                      final pesertaPribadi = _pesertaPribadiList[index];
+                      return Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ListTile(
+                              title: Text('${pesertaPribadi.namaPeserta}'),
+                              subtitle: Text('Rp. ${pesertaPribadi.biaya}'),
+                            ),
+                          ),
+                          // Divider(thickness: 1), // Add a Divider widget here
+                        ],
+                      );
+                    },
+                  ),
                 ),
         ],
       ),
