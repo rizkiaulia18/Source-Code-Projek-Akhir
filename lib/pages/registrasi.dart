@@ -234,7 +234,7 @@ class _RegistrasiViewState extends State<RegistrasiView> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        Navigator.push(context,
+                        Navigator.pushReplacement(context,
                             MaterialPageRoute(builder: (_) => LoginView()));
                       },
                       child: Text(

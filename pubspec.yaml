@@ -78,6 +78,10 @@ flutter:
     - assets/icons/
     - assets/kiblat/
 
+# flutter_icons:
+#   android: true
+#   ios: true
+#   image_path: "assets/logo/simasjid.png"
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
